@@ -39,6 +39,8 @@ class AddressBook(UserDict):
         upcoming_birthdays = []
         today = date.today()
         for rec in self.data.values():
+            if rec.birthday.value is None:
+                continue
             birthday_this_year = rec.birthday.value.replace(year=today.year).date()
 
             # Перевірка, чи не буде припадати день народження вже наступного року
@@ -51,7 +53,7 @@ class AddressBook(UserDict):
             # Перевірка, чи день народження випадає протягом наступних 7 днів
             if 0 <= (birthday_this_year - today).days <= 7:
                 congratulation_date_str = self._date_to_string(birthday_this_year)
-                upcoming_birthdays.append({"Name": rec.name.value, "Congratulation_Date": congratulation_date_str})
+                upcoming_birthdays.append({"name": rec.name.value, "congratulation_date": congratulation_date_str})
 
         return upcoming_birthdays
     

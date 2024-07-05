@@ -1,1 +1,1 @@
-DATA = r'goit-webeng-hw-01\Module1_MainTask\data.pickle' 
+DATA = r'D:\Repositories\goit-webeng-hw-01\Module1_MainTask\data.pickle' 

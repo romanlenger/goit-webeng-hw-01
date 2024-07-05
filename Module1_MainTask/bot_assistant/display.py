@@ -1,31 +1,53 @@
 from abc import ABC, abstractmethod
+from typing import Literal
+from functools import wraps
 
-from bot_assistant import AddressBook   
+from bot_assistant import AddressBook
+from .errors_handlers import display_error
 
 
 class Show(ABC):
     """
     Абстрактний клас для виведення даних в консоль.
     """
+    def __init__(self): 
+        pass
+
     @abstractmethod
-    def show(self, message: str = None, book: AddressBook = None, name: str = None):
+    def __call__(self, *args, **kwargs): 
         pass
 
 
 class BookShow(Show):
-    def show(self, message: str = None, book: AddressBook = None, name: str = None):
-        print (' '.join(str(row) for row in book.data.values()))
+    def __init__(self, book: AddressBook):
+        super().__init__()
+        self.book = book
+
+    def __call__(self):
+        print (' '.join(str(row) for row in self.book.data.values()))
 
 
 class PhoneShow(Show):
-    def show(self, message: str = None, book: AddressBook = None, name: str = None):
-        record = book.find(name)
+    def __init__(self, book: AddressBook):
+        super().__init__()
+        self.book = book
+
+    @display_error
+    def __call__(self, *args):
+        name, *_ = args
+        record = self.book.find(name[0])
         print ('\n'.join(ph.value for ph in record.phones))
 
 
 class RecordShow(Show):
-    def show(self, message: str = None, book: AddressBook = None, name: str = None):
-        record = book.find(name)
+    def __init__(self, book: AddressBook):
+        super().__init__()
+        self.book = book
+
+    @display_error
+    def __call__(self, *args):
+        name, *_ = args
+        record = self.book.find(name[0])
         print (f"""
         Contact name: {record.name.value},\n
         phones: {'; '.join(p.value for p in record.phones)},\n
@@ -34,9 +56,10 @@ class RecordShow(Show):
 
 
 class CommandsShow(Show):
-    def show(self, message: str = None, book: AddressBook = None, name: str = None):
+    def __call__(self):
         print ("Команди:\n" + '\n'.join([
-            'add [ім\'я] [номер телефону] - Створює новий контакт.', 
+            'add [ім\'я] [номер телефону] - Створює новий контакт.',
+            'del [ім\'я] - Видаляє контакт',
             'phone [ім\'я] - Виведе номер телефону вказаного контакту.', 
             'show [ім\'я] - Виводить всю інформацію по вказаному контакту.',
             'all - Виведе список усіх контактів', 
@@ -45,23 +68,28 @@ class CommandsShow(Show):
             'show-birthday [ім\'я]', 
             'birthdays', 
             'help'
-            ]))
-    
+        ]))
+
 
 class MessageShow(Show):
-    def show(self, message: str = None, book: AddressBook = None, name: str = None):
+    @display_error
+    def __call__(self, *args):
+        message, *_ = args
         print(message)
+ 
 
+class Displays:
+    DisplayType = Literal["book", "phone", "contact", "commands", "message"]
 
-class DisplayFactory:
-    def __init__(self):
+    def __init__(self, book: AddressBook):
+        self.book = book
         self.displays = {
-            "book" : BookShow(),
-            "phone" : PhoneShow(),
-            "contact" : RecordShow(),
+            "book" : BookShow(self.book),
+            "phone" : PhoneShow(self.book),
+            "contact" : RecordShow(self.book),
             "commands" : CommandsShow(),
             "message" : MessageShow()
         }
 
-    def get_display(self, show_type: str) -> Show:
+    def get_display(self, show_type: DisplayType) -> Show:
         return self.displays.get(show_type, None)
