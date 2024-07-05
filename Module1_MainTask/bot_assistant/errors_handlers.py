@@ -28,5 +28,4 @@ def display_error(func):
             return func(*args, **kwargs)
         except Exception:
             print(f"@display_error: Перевірте кількість та правильність вводу аргументів.")
-            # Можете добавить дополнительную обработку или логирование здесь
     return wrapper
