@@ -3,8 +3,8 @@ from typing import Literal
 from functools import wraps
 
 from bot_assistant import AddressBook
-from .errors_handlers import display_error
-
+from .error_handlers import display_error
+        
 
 class Show(ABC):
     """
@@ -27,31 +27,31 @@ class BookShow(Show):
         print (' '.join(str(row) for row in self.book.data.values()))
 
 
+@display_error
 class PhoneShow(Show):
     def __init__(self, book: AddressBook):
         super().__init__()
         self.book = book
 
-    @display_error
     def __call__(self, *args):
         name, *_ = args
         record = self.book.find(name[0])
         print ('\n'.join(ph.value for ph in record.phones))
 
 
+@display_error
 class RecordShow(Show):
     def __init__(self, book: AddressBook):
         super().__init__()
         self.book = book
 
-    @display_error
     def __call__(self, *args):
         name, *_ = args
         record = self.book.find(name[0])
         print (f"""
-        Contact name: {record.name.value},\n
-        phones: {'; '.join(p.value for p in record.phones)},\n
-        birthday: {record.birthday.value.date()}
+            Contact name: {record.name.value},\n
+            phones: {'; '.join(p.value for p in record.phones)},\n
+            birthday: {record.birthday.value.date()}
         """)
 
 
@@ -71,12 +71,12 @@ class CommandsShow(Show):
         ]))
 
 
+@display_error
 class MessageShow(Show):
-    @display_error
     def __call__(self, *args):
         message, *_ = args
         print(message)
- 
+          
 
 class Displays:
     DisplayType = Literal["book", "phone", "contact", "commands", "message"]

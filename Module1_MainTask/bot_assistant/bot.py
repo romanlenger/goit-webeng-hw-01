@@ -1,7 +1,7 @@
 from typing import Tuple, List
 
 from bot_assistant import Record, Displays
-from .errors_handlers import bot_error
+from .error_handlers import bot_error
 from .data import FileProcessor
 from variables import DATA
 
@@ -44,7 +44,6 @@ class Bot:
         record.edit_phone(old_phone, new_phone)
         self.message("Номер телефону оновлено.") 
     
-
     @bot_error
     def add_birthday(self, args):
         name, birthday, *_ = args

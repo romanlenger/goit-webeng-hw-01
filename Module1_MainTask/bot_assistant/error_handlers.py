@@ -6,7 +6,7 @@ def bot_error(func):
     Декоратор для обробки помилок вводу.
     """
     @wraps(func)
-    def inner( *args, **kwargs):
+    def inner(*args, **kwargs):
         try:
             result = func(*args, **kwargs)
             return result
@@ -21,11 +21,14 @@ def bot_error(func):
     return inner
 
 
-def display_error(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
+def display_error(cls):
+    call = cls.__call__
+    @wraps(cls)
+    def wrapper(self, *args, **kwargs):
         try:
-            return func(*args, **kwargs)
+            return call(self, *args, **kwargs)
         except Exception:
             print(f"@display_error: Перевірте кількість та правильність вводу аргументів.")
-    return wrapper
+
+    cls.__call__ = wrapper
+    return cls
